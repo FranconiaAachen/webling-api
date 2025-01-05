@@ -28,12 +28,10 @@
         "ext-json": "*",
         "symfony/console": "^2.6 || ^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
         "symfony/filesystem": "^2.6 || ^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
-
-        "psr/http-message": "^1.0",
-        "php-http/client-implementation": "^1.0",
-        "php-http/httplug": "^1.0 || ^2.0",
-        "psr/http-factory": "^1.0",
-        "php-http/discovery": "^1.0"
+        "psr/http-client": "^1.0",
+        "php-http/discovery": "^1.17",
+        "psr/http-client-implementation": "*",
+        "psr/http-factory-implementation": "*"
     },
     "require-dev": {
         "symfony/http-client": "^4.0 || ^5.0 || ^6.0 || ^7.0",
@@ -52,7 +50,7 @@
     "bin": ["bin/webling"],
     "extra": {
         "branch-alias": {
-            "dev-main": "2.1.x-dev"
+            "dev-main": "3.0.x-dev"
         }
     },
     "scripts": {
