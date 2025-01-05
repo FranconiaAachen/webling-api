@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terminal42\WeblingApi\Command;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
 use Terminal42\WeblingApi\Exception\HttpStatusException;
+use function in_array;
+use const DIRECTORY_SEPARATOR;
 
 class GenerateEntityCommand extends ManagerAwareCommand
 {
@@ -34,18 +37,20 @@ class GenerateEntityCommand extends ManagerAwareCommand
             ->setDescription('Generate entities for your Webling configuration.')
             ->addArgument('directory', InputArgument::REQUIRED, 'The directory to place generated files.')
             ->addOption('namespace', null, InputOption::VALUE_REQUIRED, 'The namespace for generated entities.')
-            ->addOption('strict-types', null, InputOption::VALUE_NONE, 'Whether to enforce strict types on the entities.')
-        ;
+            ->addOption('strict-types', null, InputOption::VALUE_NONE, 'Whether to enforce strict types on the entities.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        try {
+        try
+        {
             $definition = $this->manager->getDefinition();
-        } catch (HttpStatusException $e) {
+        } catch (HttpStatusException $e)
+        {
             $output->writeln('Could not connect to the Webling API. Check your access details.');
 
-            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE)
+            {
                 $output->writeln($e->getMessage());
             }
 
@@ -55,9 +60,10 @@ class GenerateEntityCommand extends ManagerAwareCommand
         $classes = [];
         $namespace = $this->getNamespace($input, $output);
 
-        foreach ($this->getSupportedTypes($definition) as $entity) {
+        foreach ($this->getSupportedTypes($definition) as $entity)
+        {
             $class = ucfirst($entity);
-            $classes[$entity] = $namespace.'\\Entity\\'.$class;
+            $classes[$entity] = $namespace . '\\Entity\\' . $class;
 
             $this->generateEntity($namespace, $class, $input->getArgument('directory'), $definition[$entity]['properties'], $input->getOption('strict-types'));
         }
@@ -69,7 +75,8 @@ class GenerateEntityCommand extends ManagerAwareCommand
 
     private function getNamespace(InputInterface $input, OutputInterface $output): string
     {
-        if ($namespace = $input->getOption('namespace')) {
+        if ($namespace = $input->getOption('namespace'))
+        {
             return $namespace;
         }
 
@@ -77,22 +84,26 @@ class GenerateEntityCommand extends ManagerAwareCommand
         $helper = $this->getHelper('question');
 
         $folders = [];
-        $dir = rtrim($input->getArgument('directory'), \DIRECTORY_SEPARATOR);
+        $dir = rtrim($input->getArgument('directory'), DIRECTORY_SEPARATOR);
 
-        foreach (array_reverse(explode(\DIRECTORY_SEPARATOR, $dir)) as $folder) {
-            if (!preg_match('/^[A-Z][A-Za-z0-9]*$/', $folder)) {
+        foreach (array_reverse(explode(DIRECTORY_SEPARATOR, $dir)) as $folder)
+        {
+            if (!preg_match('/^[A-Z][A-Za-z0-9]*$/', $folder))
+            {
                 break;
             }
 
             $folders[] = $folder;
         }
 
+        $folders[] = 'App';
+
         $namespace = implode('\\', array_reverse($folders));
 
         return $helper->ask(
             $input,
             $output,
-            new Question('Please enter a namespace ['.$namespace.']: ', $namespace)
+            new Question('Please enter a namespace [' . $namespace . ']: ', $namespace)
         );
     }
 
@@ -100,36 +111,15 @@ class GenerateEntityCommand extends ManagerAwareCommand
     {
         $entities = [];
 
-        foreach (array_keys($definition) as $type) {
-            if ($this->manager->getFactory()->supports($type)) {
+        foreach (array_keys($definition) as $type)
+        {
+            if ($this->manager->getFactory()->supports($type))
+            {
                 $entities[] = $type;
             }
         }
 
         return $entities;
-    }
-
-    private function generateEntityFactory($namespace, array $classes, $path, bool $strictTypes = false): void
-    {
-        $declare = $strictTypes ? "\ndeclare(strict_types=1);\n" : '';
-        $var = var_export($classes, true);
-
-        $buffer = <<<PHP
-<?php
-$declare
-namespace $namespace;
-
-use Terminal42\\WeblingApi\\EntityFactory as BaseFactory;
-
-class EntityFactory extends BaseFactory
-{
-    protected static \$classes = $var;
-
-PHP;
-
-        $buffer .= "}\n";
-
-        $this->filesystem->dumpFile($path.\DIRECTORY_SEPARATOR.'EntityFactory.php', $buffer);
     }
 
     private function generateEntity($namespace, $className, $path, array $properties, bool $strictTypes = false): void
@@ -140,6 +130,7 @@ PHP;
 $declare
 namespace $namespace\\Entity;
 
+use DateMalformedStringException;
 use Terminal42\\WeblingApi\\Entity\\DefinitionAwareInterface;
 use Terminal42\\WeblingApi\\Entity\\GeneratorTrait;
 use Terminal42\\WeblingApi\\Entity\\$className as BaseEntity;
@@ -150,36 +141,38 @@ class $className extends BaseEntity implements DefinitionAwareInterface
 
 PHP;
 
-        foreach ($properties as $property) {
+        foreach ($properties as $property)
+        {
             $id = $property['id'];
             $name = $property['title'];
             $method = $this->normalizeProperty($name);
             $type = $this->getType($property['datatype'], $name, $namespace);
 
-            $isScalar = \in_array($type, ['int', 'float', 'bool', 'string'], true);
+            $isScalar = in_array($type, ['int', 'float', 'bool', 'string'], true);
             $default = $isScalar ? '' : ' = null';
             $getter = '$this->valueFromProperty($name, $this->getProperty($name))';
 
-            $typehint = $isScalar && !$strictTypes ? '' : $type.' ';
-            $return = $strictTypes ? ': ?'.$type : '';
-            $getDocs = $strictTypes ? '' : "\n    /**\n     * @return $type\n     */";
+            $typehint = $isScalar && !$strictTypes ? '' : $type . ' ';
+            $return = $strictTypes ? ': ?' . $type : '';
+            $getDocs = $strictTypes ? "\n    /**\n     * @throws DateMalformedStringException\n    */" : "\n    /**\n     * @return $type\n     * @throws DateMalformedStringException\n    */";
             $setDocs = $strictTypes ? '' : "\n    /**\n     * @param $type \$value\n     */";
 
-            if ('enum' === $property['datatype'] || 'multienum' === $property['datatype']) {
+            if ('enum' === $property['datatype'] || 'multienum' === $property['datatype'])
+            {
                 $this->generateEnum($namespace, $method, $path, $property, 'multienum' === $property['datatype'], $strictTypes);
                 $default = '';
-                $getter = 'new '.$type.'($this->getProperty($name))';
+                $getter = 'new ' . $type . '($this->getProperty($name))';
             }
 
             $buffer .= <<<PHP
-$getDocs
+    $getDocs
     public function get$method()$return
     {
         \$name = \$this->getPropertyNameById($id);
 
         return $getter;
     }
-$setDocs
+    $setDocs
     public function set$method($typehint\$value$default): self
     {
         \$name = \$this->getPropertyNameById($id);
@@ -194,9 +187,35 @@ PHP;
         $buffer .= "}\n";
 
         $this->filesystem->dumpFile(
-            $path.\DIRECTORY_SEPARATOR.'Entity'.\DIRECTORY_SEPARATOR.$className.'.php',
+            $path . DIRECTORY_SEPARATOR . 'Entity' . DIRECTORY_SEPARATOR . $className . '.php',
             $buffer
         );
+    }
+
+    private function normalizeProperty($name): string
+    {
+        $name = preg_replace('/[^a-z0-9]/i', '_', $name);
+        $parts = explode('_', $name);
+        $parts = array_map('ucfirst', $parts);
+
+        return implode('', $parts);
+    }
+
+    private function getType($datatype, $name, $namespace): string
+    {
+        return match ($datatype)
+        {
+            'autoincrement', 'int' => 'int',
+            'numeric' => 'float',
+            'bool' => 'bool',
+            'multienum', 'enum' => '\\' . $namespace . '\\Property\\' . $this->normalizeProperty($name),
+            'file' => '\\Terminal42\\WeblingApi\\Property\\File',
+            'image' => '\\Terminal42\\WeblingApi\\Property\\Image',
+            'text', 'longtext' => 'string',
+            'date' => '\\Terminal42\\WeblingApi\\Property\\Date',
+            'timestamp' => '\\Terminal42\\WeblingApi\\Property\\Timestamp',
+            default => throw new InvalidArgumentException(sprintf('Type "%s" is not supported (Property: %s).', $datatype, $name)),
+        };
     }
 
     private function generateEnum($namespace, $className, $path, array $property, bool $multi = false, bool $strictTypes = false): void
@@ -215,12 +234,13 @@ class $className extends $parent
 
 PHP;
 
-        foreach ((array) $property['values'] as $value) {
+        foreach ((array)$property['values'] as $value)
+        {
             $value = $value['value'];
             $name = $this->normalizeConstant($className, $value);
 
             $buffer .= <<<PHP
-    const $name = '$value';
+    const string $name = '$value';
 
 PHP;
         }
@@ -228,18 +248,9 @@ PHP;
         $buffer .= "}\n";
 
         $this->filesystem->dumpFile(
-            $path.\DIRECTORY_SEPARATOR.'Property'.\DIRECTORY_SEPARATOR.$className.'.php',
+            $path . DIRECTORY_SEPARATOR . 'Property' . DIRECTORY_SEPARATOR . $className . '.php',
             $buffer
         );
-    }
-
-    private function normalizeProperty($name): string
-    {
-        $name = preg_replace('/[^a-z0-9]/i', '_', $name);
-        $parts = explode('_', $name);
-        $parts = array_map('ucfirst', $parts);
-
-        return implode('', $parts);
     }
 
     private function normalizeConstant($property, $value): string
@@ -248,50 +259,37 @@ PHP;
         $value = preg_replace('/[^a-z0-9]/i', '_', $value);
         $value = trim(str_replace('__', '_', $value), '_');
 
-        if (empty($value)) {
+        if (empty($value))
+        {
             $value = '_';
-        } elseif (is_numeric($value)) {
-            $value = $property.'_'.$value;
+        } else if (is_numeric($value))
+        {
+            $value = $property . '_' . $value;
         }
 
         return strtoupper($value);
     }
 
-    private function getType($datatype, $name, $namespace): string
+    private function generateEntityFactory($namespace, array $classes, $path, bool $strictTypes = false): void
     {
-        switch ($datatype) {
-            case 'autoincrement':
-            case 'int':
-                return 'int';
+        $declare = $strictTypes ? "\ndeclare(strict_types=1);\n" : '';
+        $var = var_export($classes, true);
 
-            case 'numeric':
-                return 'float';
+        $buffer = <<<PHP
+<?php
+$declare
+namespace $namespace;
 
-            case 'bool':
-                return 'bool';
+use Terminal42\\WeblingApi\\EntityFactory as BaseFactory;
 
-            case 'multienum':
-            case 'enum':
-                return '\\'.$namespace.'\\Property\\'.$this->normalizeProperty($name);
+class EntityFactory extends BaseFactory
+{
+    protected static array \$classes = $var;
 
-            case 'file':
-                return '\\Terminal42\\WeblingApi\\Property\\File';
+PHP;
 
-            case 'image':
-                return '\\Terminal42\\WeblingApi\\Property\\Image';
+        $buffer .= "}\n";
 
-            case 'text':
-            case 'longtext':
-                return 'string';
-
-            case 'date':
-                return '\\Terminal42\\WeblingApi\\Property\\Date';
-
-            case 'timestamp':
-                return '\\Terminal42\\WeblingApi\\Property\\Timestamp';
-
-            default:
-                throw new \InvalidArgumentException(sprintf('Type "%s" is not supported (Property: %s).', $datatype, $name));
-        }
+        $this->filesystem->dumpFile($path . DIRECTORY_SEPARATOR . 'EntityFactory.php', $buffer);
     }
 }
