@@ -24,7 +24,7 @@ interface ClientInterface
      *
      * @return mixed
      */
-    public function get(string $url, array $query = []);
+    public function get(string $url, array $query = []): mixed;
 
     /**
      * Sends a POST request.
@@ -38,7 +38,7 @@ interface ClientInterface
      *
      * @return mixed
      */
-    public function post(string $url, string $json);
+    public function post(string $url, string $json): mixed;
 
     /**
      * Sends a PUT request.
@@ -52,7 +52,7 @@ interface ClientInterface
      *
      * @return mixed
      */
-    public function put(string $url, string $json);
+    public function put(string $url, string $json): mixed;
 
     /**
      * Sends a DELETE request.
@@ -65,5 +65,5 @@ interface ClientInterface
      *
      * @return mixed
      */
-    public function delete(string $url);
+    public function delete(string $url): mixed;
 }

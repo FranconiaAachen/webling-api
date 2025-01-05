@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Terminal42\WeblingApi\Property;
 
+use UnexpectedValueException;
+
 /**
  * This class is a replacement for \SplEnum.
  *
@@ -17,7 +19,7 @@ abstract class Enum implements \JsonSerializable
     protected $value;
 
     /**
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function __construct(string $initial_value = null)
     {
@@ -29,7 +31,7 @@ abstract class Enum implements \JsonSerializable
             $constants = $this->getConstList();
 
             if (!\in_array($initial_value, $constants, true)) {
-                throw new \UnexpectedValueException(sprintf('%s is not a valid enum value [%s]', $initial_value, implode(',', $constants)));
+                throw new UnexpectedValueException(sprintf('%s is not a valid enum value [%s]', $initial_value, implode(',', $constants)));
             }
 
             $this->value = $initial_value;
@@ -41,7 +43,7 @@ abstract class Enum implements \JsonSerializable
         return (string) $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

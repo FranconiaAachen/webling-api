@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace Terminal42\WeblingApi\Property;
 
+use DateMalformedStringException;
+
 class Date extends \DateTime implements \JsonSerializable
 {
     /**
      * Constructor.
      *
      * @param string $value
+     *
+     * @throws DateMalformedStringException
      */
-    public function __construct($value)
+    public function __construct(string $value)
     {
         parent::__construct($value.' 0:00:00');
     }
@@ -26,7 +30,7 @@ class Date extends \DateTime implements \JsonSerializable
         return $this->format('Y-m-d');
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->format('Y-m-d');
     }

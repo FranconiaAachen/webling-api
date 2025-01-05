@@ -8,44 +8,15 @@ use Terminal42\WeblingApi\EntityList;
 
 abstract class AbstractEntity implements EntityInterface
 {
-    /**
-     * @var int|null
-     */
-    protected $id;
-
-    /**
-     * @var bool
-     */
-    protected $readonly;
-
-    /**
-     * @var array
-     */
-    protected $properties;
-
-    /**
-     * @var array
-     */
-    protected $children;
-
-    /**
-     * @var EntityList|null
-     */
-    protected $parents;
-
-    /**
-     * @var array
-     */
-    protected $links;
-
-    public function __construct(int $id = null, bool $readonly = false, array $properties = [], array $children = [], EntityList $parents = null, array $links = [])
+    public function __construct(
+        protected ?int $id = null,
+        protected bool $readonly = false,
+        protected array $properties = [],
+        protected array $children = [],
+        protected ?EntityList $parents = null,
+        protected array $links = []
+    )
     {
-        $this->id = $id;
-        $this->readonly = (bool) $readonly;
-        $this->properties = $properties;
-        $this->children = $children;
-        $this->parents = $parents;
-        $this->links = $links;
     }
 
     public function getId(): ?int
@@ -84,12 +55,12 @@ abstract class AbstractEntity implements EntityInterface
         return $this;
     }
 
-    public function getProperty(string $name)
+    public function getProperty(string $name): mixed
     {
         return $this->properties[$name];
     }
 
-    public function setProperty(string $name, $value): EntityInterface
+    public function setProperty(string $name, mixed $value): EntityInterface
     {
         $this->properties[$name] = $value;
 
@@ -118,7 +89,7 @@ abstract class AbstractEntity implements EntityInterface
         return $this->links[$type] ?? null;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $data = [
             'type' => $this->getType(),

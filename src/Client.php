@@ -44,7 +44,8 @@ class Client implements ClientInterface
         string $apiKey,
         int $apiVersion,
         PsrClientInterface $httpClient = null,
-        RequestFactoryInterface $requestFactory = null)
+        RequestFactoryInterface $requestFactory = null
+    )
     {
         $this->httpClient = $httpClient ?: Psr18ClientDiscovery::find();
         $this->requestFactory = $requestFactory ?: Psr17FactoryDiscovery::findRequestFactory();
@@ -56,7 +57,7 @@ class Client implements ClientInterface
     /**
      * @throws HttpStatusException
      */
-    public function get(string $url, array $query = [])
+    public function get(string $url, array $query = []): mixed
     {
         try {
             $response = $this->httpClient->sendRequest(
@@ -86,7 +87,7 @@ class Client implements ClientInterface
     /**
      * @throws HttpStatusException
      */
-    public function post(string $url, string $json)
+    public function post(string $url, string $json): mixed
     {
         try {
             $response = $this->httpClient->sendRequest(
@@ -110,7 +111,7 @@ class Client implements ClientInterface
     /**
      * @throws HttpStatusException
      */
-    public function put(string $url, string $json): void
+    public function put(string $url, string $json): mixed
     {
         try {
             $response = $this->httpClient->sendRequest(
@@ -120,6 +121,8 @@ class Client implements ClientInterface
             if (204 !== $response->getStatusCode()) {
                 throw $this->convertResponseToException($response);
             }
+
+            return $response->getBody()->getContents();
         } catch (Exception $e)
         {
             throw new HttpStatusException($e->getMessage(), $e->getCode(), $e);
@@ -132,7 +135,7 @@ class Client implements ClientInterface
     /**
      * @throws HttpStatusException
      */
-    public function delete(string $url): void
+    public function delete(string $url): mixed
     {
         try {
             $response = $this->httpClient->sendRequest(
@@ -142,6 +145,8 @@ class Client implements ClientInterface
             if (204 !== $response->getStatusCode()) {
                 throw $this->convertResponseToException($response);
             }
+
+            return $response->getBody()->getContents();
         } catch (Exception $e)
         {
             throw new HttpStatusException($e->getMessage(), $e->getCode(), $e);

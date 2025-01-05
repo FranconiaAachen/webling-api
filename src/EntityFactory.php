@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terminal42\WeblingApi;
 
+use Terminal42\WeblingApi\Entity\AbstractEntity;
 use Terminal42\WeblingApi\Entity\DefinitionAwareInterface;
 use Terminal42\WeblingApi\Entity\EntityInterface;
 use Terminal42\WeblingApi\Entity\Member;
@@ -18,7 +19,7 @@ class EntityFactory implements EntityFactoryInterface
     /**
      * @var array<string, string>
      */
-    protected static $classes = [
+    protected static array $classes = [
         'member' => Member::class,
         'membergroup' => Membergroup::class,
         'article' => Article::class,
@@ -29,6 +30,7 @@ class EntityFactory implements EntityFactoryInterface
 
     public function create(EntityManager $manager, array $data, int $id = null): EntityInterface
     {
+        /** @var AbstractEntity $class */
         $class = static::$classes[$data['type']];
 
         $children = [];

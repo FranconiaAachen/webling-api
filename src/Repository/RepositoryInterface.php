@@ -10,8 +10,8 @@ use Terminal42\WeblingApi\Query\Query;
 
 interface RepositoryInterface
 {
-    public const DIRECTION_ASC = 'ASC';
-    public const DIRECTION_DESC = 'DESC';
+    public const string DIRECTION_ASC = 'ASC';
+    public const string DIRECTION_DESC = 'DESC';
 
     /**
      * Gets the entity type for this repository.
@@ -23,7 +23,7 @@ interface RepositoryInterface
      *
      * @param array $order a sorting array where key is property and value is direction (see constants)
      *
-     * @return EntityList|EntityInterface[]
+     * @return EntityList
      */
     public function findAll(array $order = []): EntityList;
 
@@ -31,6 +31,8 @@ interface RepositoryInterface
      * Find entity by ID.
      *
      * @param int $id The entity ID
+     *
+     * @return EntityInterface
      */
     public function findById(int $id): EntityInterface;
 
@@ -40,7 +42,7 @@ interface RepositoryInterface
      * @param Query $query A property query from the QueryBuilder
      * @param array $order a sorting array where key is property and value is direction (see constants)
      *
-     * @return EntityList|EntityInterface[]
+     * @return EntityList
      */
     public function findBy(Query $query, array $order = []): EntityList;
 }

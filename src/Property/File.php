@@ -6,19 +6,14 @@ namespace Terminal42\WeblingApi\Property;
 
 class File implements \JsonSerializable
 {
-    private $href;
-    private $size;
-    private $ext;
-    private $mime;
-    private $timestamp;
-
-    public function __construct($href, $size, $ext, $mime, Timestamp $timestamp)
+    public function __construct(
+        private readonly string $href,
+        private readonly int $size,
+        private readonly string $ext,
+        private readonly string $mime,
+        private readonly Timestamp $timestamp
+    )
     {
-        $this->href = $href;
-        $this->size = $size;
-        $this->ext = $ext;
-        $this->mime = $mime;
-        $this->timestamp = $timestamp;
     }
 
     public function getHref(): string
@@ -46,7 +41,7 @@ class File implements \JsonSerializable
         return $this->timestamp;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'href' => $this->href,

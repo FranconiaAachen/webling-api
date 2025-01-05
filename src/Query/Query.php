@@ -9,16 +9,16 @@ class Query implements BuildableInterface
     /**
      * @var array
      */
-    private $blocks = [];
+    private array $blocks = [];
 
-    private $parent;
+    private ?self $parent = null;
 
     /**
      * Constructor.
      *
      * @param Parameter|Query $block
      */
-    public function __construct($block)
+    public function __construct(Parameter|Query $block)
     {
         $this->blocks[] = $block;
     }

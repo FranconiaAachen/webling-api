@@ -4,28 +4,14 @@ declare(strict_types=1);
 
 namespace Terminal42\WeblingApi;
 
-class Changes
+readonly class Changes
 {
-    /**
-     * @var int
-     */
-    private $fromRevision;
-
-    /**
-     * @var array
-     */
-    private $changes;
-
-    /**
-     * @var EntityManager
-     */
-    private $manager;
-
-    public function __construct(int $fromRevision, array $changes, EntityManager $manager)
+    public function __construct(
+        private int $fromRevision,
+        private array $changes,
+        private EntityManager $manager
+    )
     {
-        $this->fromRevision = $fromRevision;
-        $this->changes = $changes;
-        $this->manager = $manager;
     }
 
     /**

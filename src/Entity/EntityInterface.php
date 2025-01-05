@@ -51,16 +51,21 @@ interface EntityInterface extends \JsonSerializable
     /**
      * Gets an entity property by name.
      *
+     * @param string $name
+     *
      * @return mixed
      */
-    public function getProperty(string $name);
+    public function getProperty(string $name): mixed;
 
     /**
      * Sets a entity property by name.
      *
-     * @param mixed $value
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return EntityInterface
      */
-    public function setProperty(string $name, $value): self;
+    public function setProperty(string $name, mixed $value): self;
 
     /**
      * Gets the entity children.

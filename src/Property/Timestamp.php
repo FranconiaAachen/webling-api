@@ -19,7 +19,7 @@ class Timestamp extends \DateTime implements \JsonSerializable
         return $this->format('Y-m-d H:i');
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return (string) $this;
     }

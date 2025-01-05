@@ -11,7 +11,7 @@ class QueryBuilder
      *
      * @return Parameter
      */
-    public function where($property)
+    public function where(string $property): Parameter
     {
         $parameter = new Parameter($property);
         $group = new Query($parameter);

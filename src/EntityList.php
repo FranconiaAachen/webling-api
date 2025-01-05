@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terminal42\WeblingApi;
 
+use InvalidArgumentException;
 use Terminal42\WeblingApi\Entity\EntityInterface;
 
 class EntityList implements \Iterator, \Countable, \JsonSerializable
@@ -11,17 +12,17 @@ class EntityList implements \Iterator, \Countable, \JsonSerializable
     /**
      * @var string
      */
-    private $type;
+    private string $type;
 
     /**
      * @var array
      */
-    private $ids;
+    private array $ids;
 
     /**
      * @var EntityManager
      */
-    private $manager;
+    private EntityManager $manager;
 
     /**
      * Constructor.
@@ -37,7 +38,7 @@ class EntityList implements \Iterator, \Countable, \JsonSerializable
         $this->manager = $manager;
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->manager->find($this->type, current($this->ids));
     }
@@ -47,7 +48,7 @@ class EntityList implements \Iterator, \Countable, \JsonSerializable
         next($this->ids);
     }
 
-    public function key()
+    public function key(): mixed
     {
         return current($this->ids);
     }
@@ -70,7 +71,7 @@ class EntityList implements \Iterator, \Countable, \JsonSerializable
     /**
      * Gets all IDs of the entity list.
      */
-    public function getIds()
+    public function getIds(): array
     {
         return $this->ids;
     }
@@ -81,13 +82,13 @@ class EntityList implements \Iterator, \Countable, \JsonSerializable
     public function add(EntityInterface $entity): self
     {
         if ($this->type !== $entity->getType()) {
-            throw new \InvalidArgumentException('Entity type does not match entity list.');
+            throw new InvalidArgumentException('Entity type does not match entity list.');
         }
 
         $id = $entity->getId();
 
         if (null === $id) {
-            throw new \InvalidArgumentException('The entity must have an ID.');
+            throw new InvalidArgumentException('The entity must have an ID.');
         }
 
         if (!\in_array($id, $this->ids, false)) {
@@ -97,7 +98,7 @@ class EntityList implements \Iterator, \Countable, \JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->ids;
     }

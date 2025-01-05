@@ -6,9 +6,9 @@ namespace Terminal42\WeblingApi\Entity;
 
 class Member extends AbstractEntity
 {
-    public const IMAGE_ORIGINAL = 'original';
-    public const IMAGE_THUMB = 'thumb';
-    public const IMAGE_MINI = 'mini';
+    public const string IMAGE_ORIGINAL = 'original';
+    public const string IMAGE_THUMB = 'thumb';
+    public const string IMAGE_MINI = 'mini';
 
     public static function getType(): string
     {

@@ -14,13 +14,16 @@ trait GeneratorTrait
     /**
      * @var array
      */
-    private $definition;
+    private array $definition;
 
     public function setDefinition(array $definition): void
     {
         $this->definition = $definition;
     }
 
+    /**
+     * @throws \DateMalformedStringException
+     */
     protected function valueFromProperty($name, $value)
     {
         $property = null;

@@ -13,11 +13,10 @@ use Terminal42\WeblingApi\Query\Query;
 
 abstract class AbstractRepository implements RepositoryInterface
 {
-    protected $manager;
-
-    public function __construct(EntityManager $manager)
+    public function __construct(
+        protected EntityManager $manager
+    )
     {
-        $this->manager = $manager;
     }
 
     /**

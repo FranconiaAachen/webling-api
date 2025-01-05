@@ -18,7 +18,7 @@ class GenerateEntityCommand extends ManagerAwareCommand
     /**
      * @var Filesystem
      */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(Filesystem $filesystem)
     {
@@ -233,7 +233,7 @@ PHP;
         );
     }
 
-    private function normalizeProperty($name)
+    private function normalizeProperty($name): string
     {
         $name = preg_replace('/[^a-z0-9]/i', '_', $name);
         $parts = explode('_', $name);
@@ -242,7 +242,7 @@ PHP;
         return implode('', $parts);
     }
 
-    private function normalizeConstant($property, $value)
+    private function normalizeConstant($property, $value): string
     {
         $value = str_replace(['ä', 'Ä', 'ö', 'Ö', 'ü', 'Ü'], ['ae', 'AE', 'oe', 'OE', 'ue', 'UE'], $value);
         $value = preg_replace('/[^a-z0-9]/i', '_', $value);
@@ -257,7 +257,7 @@ PHP;
         return strtoupper($value);
     }
 
-    private function getType($datatype, $name, $namespace)
+    private function getType($datatype, $name, $namespace): string
     {
         switch ($datatype) {
             case 'autoincrement':
@@ -270,10 +270,8 @@ PHP;
             case 'bool':
                 return 'bool';
 
-            case 'enum':
-                return '\\'.$namespace.'\\Property\\'.$this->normalizeProperty($name);
-
             case 'multienum':
+            case 'enum':
                 return '\\'.$namespace.'\\Property\\'.$this->normalizeProperty($name);
 
             case 'file':
