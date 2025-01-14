@@ -17,7 +17,6 @@ use UnexpectedValueException;
 class EntityManager
 {
     public const int API_VERSION = 1;
-    public const int API_REVISION = 82;
 
     /**
      * @var array
@@ -97,19 +96,35 @@ class EntityManager
      * @param string     $type  The entity type
      * @param Query|null $query A property query from the QueryBuilder
      * @param array      $order a sorting array where key is property and value is direction (see constants)
+     * @param bool $full request full data not only IDs
      *
      * @return EntityList
      */
-    public function findAll(string $type, Query $query = null, array $order = []): EntityList
+    public function findAll(string $type, Query $query = null, array $order = [], bool $full = false): EntityList
     {
         $params = [
             'filter' => (string) $query,
             'order' => $this->prepareOrder($order),
         ];
 
+        if ($full)
+            $params['format'] = 'full';
+
         $data = $this->client->get("/$type", array_filter($params));
 
-        return new EntityList($type, $data['objects'], $this);
+        if (!$full)
+            return new EntityList($type, $data['objects'], $this);
+
+        $ids = [];
+        foreach ($data as $object)
+        {
+            $id = $object['id'];
+            $ids[] = $id;
+            $entity = $this->factory->create($this, $object, $id);
+            $this->entities[$type][$id] = $entity;
+        }
+
+        return new EntityList($type, $ids, $this);
     }
 
     /**

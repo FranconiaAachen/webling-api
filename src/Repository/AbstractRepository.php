@@ -23,7 +23,7 @@ abstract class AbstractRepository implements RepositoryInterface
      * @throws HttpStatusException If there was a problem with the request
      * @throws ParseException      If the JSON data could not be parsed
      */
-    public function findAll(array $order = []): EntityList
+    public function findAll(array $order = [], bool $full = false): EntityList
     {
         return $this->manager->findAll($this->getType(), null, $order);
     }
@@ -32,7 +32,7 @@ abstract class AbstractRepository implements RepositoryInterface
      * @throws HttpStatusException If there was a problem with the request
      * @throws ParseException      If the JSON data could not be parsed
      */
-    public function findById(int $id): EntityInterface
+    public function findById(int $id, bool $full = false): EntityInterface
     {
         return $this->manager->find($this->getType(), $id);
     }
@@ -41,7 +41,7 @@ abstract class AbstractRepository implements RepositoryInterface
      * @throws HttpStatusException If there was a problem with the request
      * @throws ParseException      If the JSON data could not be parsed
      */
-    public function findBy(Query $query, array $order = []): EntityList
+    public function findBy(Query $query, array $order = [], bool $full = false): EntityList
     {
         return $this->manager->findAll($this->getType(), $query, $order);
     }

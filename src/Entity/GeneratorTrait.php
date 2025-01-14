@@ -27,7 +27,7 @@ trait GeneratorTrait
     /**
      * @throws DateMalformedStringException
      */
-    protected function valueFromProperty($name, $value): Image|Date|Timestamp|File|null
+    protected function valueFromProperty($name, $value): string|int|Image|Date|Timestamp|File|null
     {
         $property = null;
         foreach ((array)$this->definition['properties'] as $data)
