@@ -21,7 +21,7 @@ abstract class Enum implements \JsonSerializable
     /**
      * @throws UnexpectedValueException
      */
-    public function __construct(string $initial_value = null)
+    public function __construct(?string $initial_value = null)
     {
         if (null === $initial_value) {
             $constants = $this->getConstList(true);

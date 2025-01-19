@@ -100,7 +100,7 @@ class EntityManager
      *
      * @return EntityList
      */
-    public function findAll(string $type, Query $query = null, array $order = [], bool $full = false): EntityList
+    public function findAll(string $type, ?Query $query = null, array $order = [], bool $full = false): EntityList
     {
         $params = [
             'filter' => (string) $query,

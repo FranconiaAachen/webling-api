@@ -28,7 +28,7 @@ class EntityFactory implements EntityFactoryInterface
         'documentgroup' => Documentgroup::class,
     ];
 
-    public function create(EntityManager $manager, array $data, int $id = null): EntityInterface
+    public function create(EntityManager $manager, array $data, ?int $id = null): EntityInterface
     {
         /** @var AbstractEntity $class */
         $class = static::$classes[$data['type']];

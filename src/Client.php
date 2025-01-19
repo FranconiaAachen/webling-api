@@ -43,8 +43,8 @@ class Client implements ClientInterface
         string $subdomain,
         string $apiKey,
         int $apiVersion,
-        PsrClientInterface $httpClient = null,
-        RequestFactoryInterface $requestFactory = null
+        ?PsrClientInterface $httpClient = null,
+        ?RequestFactoryInterface $requestFactory = null
     )
     {
         $this->httpClient = $httpClient ?: Psr18ClientDiscovery::find();
@@ -165,7 +165,7 @@ class Client implements ClientInterface
      * @return HttpStatusException|ApiErrorException|NotFoundException
      * @throws JsonException
      */
-    protected function convertResponseToException(ResponseInterface $response, Exception $exception = null): HttpStatusException|ApiErrorException|NotFoundException
+    protected function convertResponseToException(ResponseInterface $response, ?Exception $exception = null): HttpStatusException|ApiErrorException|NotFoundException
     {
         $body = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 

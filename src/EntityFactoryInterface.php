@@ -11,7 +11,7 @@ interface EntityFactoryInterface
     /**
      * Create an entity from given JSON data.
      */
-    public function create(EntityManager $manager, array $data, int $id = null): EntityInterface;
+    public function create(EntityManager $manager, array $data, ?int $id = null): EntityInterface;
 
     /**
      * Returns whether the factory supports an entity type.

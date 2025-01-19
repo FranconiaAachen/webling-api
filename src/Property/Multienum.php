@@ -14,7 +14,7 @@ abstract class Multienum extends Enum
      * @noinspection MagicMethodsValidityInspection
      * @noinspection PhpMissingParentConstructorInspection
      */
-    public function __construct(array $initial_value = null)
+    public function __construct(?array $initial_value = null)
     {
         if (null === $initial_value) {
             $constants = static::getConstList(true);
